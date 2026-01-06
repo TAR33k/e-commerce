@@ -41,6 +41,15 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signup = async (req, res) => {
   const { email, password, name } = req.body;
+
+  if (!email || !password || !name)
+    return res.status(400).json({ message: "All fields are required" });
+
+  if (password.length < 6)
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters long" });
+
   try {
     const userExists = await User.findOne({ email });
 
@@ -69,9 +78,13 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+
+    if (!user)
+      return res.status(400).json({ message: "Invalid email or password" });
+
     const isPasswordValid = await user.comparePassword(password);
 
-    if (user && isPasswordValid) {
+    if (isPasswordValid) {
       const { accessToken, refreshToken } = generateTokens(user._id);
       await storeRefreshToken(user._id, refreshToken);
       setCookies(res, accessToken, refreshToken);
@@ -87,6 +100,7 @@ export const login = async (req, res) => {
     }
   } catch (error) {
     console.log("Error in login controller", error.message);
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
