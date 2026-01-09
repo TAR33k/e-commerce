@@ -39,6 +39,10 @@ export const useCartStore = create((set, get) => ({
       });
       get().calculateTotals();
     } catch (error) {
+      if (error.response.status === 401) {
+        toast.error("Please login to add products to cart");
+        return;
+      }
       toast.error(error.response.data.message || "Failed to add to cart");
     }
   },

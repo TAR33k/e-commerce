@@ -77,4 +77,15 @@ export const useProductStore = create((set) => ({
       set({ loading: false });
     }
   },
+
+  fetchFeaturedProducts: async () => {
+    set({ loading: true });
+    try {
+      const res = await axios.get("/products/featured");
+      set({ products: res.data, loading: false });
+    } catch (error) {
+      toast.error(error.response.data.message);
+      set({ loading: false });
+    }
+  },
 }));
