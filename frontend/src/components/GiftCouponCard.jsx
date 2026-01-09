@@ -1,11 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { useCartStore } from "../stores/useCartStore";
 
 const GiftCouponCard = () => {
-  const { coupon, isCouponApplied, applyCoupon, removeCoupon } = useCartStore();
+  const { coupon, isCouponApplied, getMyCoupon, applyCoupon, removeCoupon } =
+    useCartStore();
   const [userInputCode, setUserInputCode] = useState("");
+
+  useEffect(() => {
+    getMyCoupon();
+  }, [getMyCoupon]);
+
+  useEffect(() => {
+    if (coupon) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUserInputCode(coupon.code);
+    }
+  }, [coupon]);
 
   const handleApplyCoupon = () => {
     if (!userInputCode) return;

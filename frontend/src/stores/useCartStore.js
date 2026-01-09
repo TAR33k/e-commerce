@@ -44,12 +44,15 @@ export const useCartStore = create((set, get) => ({
   },
 
   calculateTotals: () => {
-    const { cart, coupon } = get();
+    const { cart, coupon, isCouponApplied } = get();
     const subtotal = cart.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     );
-    const total = coupon ? subtotal * (1 - coupon.discount / 100) : subtotal;
+    const total =
+      coupon && isCouponApplied
+        ? subtotal * (1 - coupon.discountPercentage / 100)
+        : subtotal;
     set({ subtotal, total });
   },
 
@@ -71,7 +74,7 @@ export const useCartStore = create((set, get) => ({
       return;
     }
     try {
-      await axios.put(`/cart/${productId}`, { data: { quantity } });
+      await axios.put(`/cart/${productId}`, { quantity });
       set((prevState) => {
         const updatedCart = prevState.cart.map((item) =>
           item._id === productId ? { ...item, quantity } : item
@@ -84,7 +87,38 @@ export const useCartStore = create((set, get) => ({
     }
   },
 
-  applyCoupon: () => {},
+  clearCart: async () => {
+    set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+    try {
+      await axios.delete("/cart");
+      get().calculateTotals();
+    } catch (error) {
+      toast.error(error.response.data.message || "Failed to clear cart");
+    }
+  },
 
-  removeCoupon: () => {},
+  getMyCoupon: async () => {
+    try {
+      const response = await axios.get("/coupons");
+      set({ coupon: response.data });
+    } catch (error) {
+      console.log("Error fetching coupon", error.message);
+    }
+  },
+
+  applyCoupon: async (code) => {
+    try {
+      const response = await axios.post("/coupons/validate", { code });
+      set({ coupon: response.data, isCouponApplied: true });
+      get().calculateTotals();
+      toast.success("Coupon applied successfully");
+    } catch (error) {
+      toast.error(error.response.data.message || "Failed to apply coupon");
+    }
+  },
+
+  removeCoupon: () => {
+    set({ coupon: null, isCouponApplied: false });
+    get().calculateTotals();
+  },
 }));

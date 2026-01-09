@@ -3,16 +3,34 @@ import { motion } from "framer-motion";
 import { useCartStore } from "../stores/useCartStore";
 import { Link } from "react-router-dom";
 import { MoveRight } from "lucide-react";
+import axios from "../lib/axios";
 
 const OrderSummary = () => {
-  const { total, subtotal, coupon, isCouponApplied } = useCartStore();
+  const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
 
   const savings = subtotal - total;
   const formattedSubtotal = subtotal.toFixed(2);
   const formattedTotal = total.toFixed(2);
   const formattedSavings = savings.toFixed(2);
 
-  const handlePayment = async () => {};
+  const handlePayment = async () => {
+    try {
+      const response = await axios.post("/payments/create-checkout-session", {
+        products: cart,
+        couponCode: coupon && isCouponApplied ? coupon.code : null,
+      });
+
+      const session = response.data;
+
+      if (session.url) {
+        window.location.href = session.url;
+      } else {
+        console.error("No checkout URL returned from server", session);
+      }
+    } catch (error) {
+      console.error("Error initiating checkout", error);
+    }
+  };
 
   return (
     <motion.div
@@ -34,7 +52,7 @@ const OrderSummary = () => {
             </dd>
           </dl>
 
-          {savings > 0 && (
+          {savings > 0 && isCouponApplied && (
             <dl className="flex items-center justify-between gap-4">
               <dt className="text-base font-normal text-gray-300">Savings</dt>
               <dd className="text-base font-medium text-emerald-400">
