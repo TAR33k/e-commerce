@@ -80,16 +80,41 @@ const AnalyticsTab = () => {
       >
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={dailySalesData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              stroke="#4B5563"
+              strokeOpacity={0.5}
+              strokeDasharray="3 3"
+              horizontal
+              vertical
+              yAxisId="left"
+            />
             <XAxis
               dataKey="date"
-              tickFormatter={(value) => new Date(value).toLocaleDateString()}
+              tickFormatter={(value) =>
+                new Date(value).toLocaleDateString("en-GB")
+              }
               stroke="#D1D5DB"
+              tick={{ fill: "#D1D5DB" }}
             />
-            <YAxis yAxisId="left" stroke="#D1D5DB" />
-            <YAxis yAxisId="right" orientation="right" stroke="#D1D5DB" />
-            <Tooltip />
-            <Legend />
+            <YAxis yAxisId="left" stroke="#D1D5DB" tick={{ fill: "#D1D5DB" }} />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              stroke="#D1D5DB"
+              tick={{ fill: "#D1D5DB" }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#111827",
+                border: "1px solid #374151",
+                color: "#E5E7EB",
+              }}
+              labelStyle={{ color: "#E5E7EB" }}
+              labelFormatter={(value) =>
+                new Date(value).toLocaleDateString("en-GB")
+              }
+            />
+            <Legend wrapperStyle={{ color: "#E5E7EB" }} />
             <Line
               yAxisId="left"
               type="monotone"
