@@ -1,12 +1,30 @@
-import { ShoppingCart, UserPlus, LogIn, LogOut, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  Search,
+  ShoppingCart,
+  UserPlus,
+  LogIn,
+  LogOut,
+  Lock,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
+import useFormInput from "../hooks/useFormInput";
 
 const Navbar = () => {
   const { user, logout } = useUserStore();
   const isAdmin = user?.role === "admin";
   const { cart } = useCartStore();
+  const navigate = useNavigate();
+  const search = useFormInput("");
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (search.value.trim()) params.set("name", search.value.trim());
+    navigate(`/search?${params.toString()}`);
+    search.reset();
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full bg-gray-900 bg-opacity-90 backdrop-blur-md shadow-lg z-40 transition-all duration-300 border-b border-emerald-800">
@@ -27,6 +45,23 @@ const Navbar = () => {
             >
               Home
             </Link>
+
+            <form onSubmit={handleSearchSubmit} className="hidden md:block">
+              <div className="relative">
+                <button type="submit">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                    size={16}
+                  />
+                </button>
+                <input
+                  {...search.bind}
+                  placeholder="Search products..."
+                  className="bg-gray-800 border border-gray-700 rounded-md pl-9 pr-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+            </form>
+
             {user && (
               <Link
                 to={"/cart"}

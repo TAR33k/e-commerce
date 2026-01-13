@@ -5,6 +5,7 @@ import axios from "../lib/axios";
 export const useProductStore = create((set) => ({
   products: [],
   loading: false,
+  searchMeta: { total: 0, page: 1, numPages: 1 },
 
   setProducts: (products) => set({ products }),
 
@@ -85,6 +86,46 @@ export const useProductStore = create((set) => ({
       set({ products: res.data, loading: false });
     } catch (error) {
       toast.error(error.response.data.message);
+      set({ loading: false });
+    }
+  },
+
+  searchProducts: async ({
+    name,
+    category,
+    sort,
+    priceOperator,
+    priceValue,
+    page = 1,
+    limit = 20,
+  }) => {
+    set({ loading: true });
+    try {
+      const params = new URLSearchParams();
+      if (name) params.set("name", name);
+      if (category) params.set("category", category);
+      if (sort) params.set("sort", sort);
+
+      if (priceOperator && priceValue !== "" && priceValue !== null) {
+        params.set("numericFilters", `price${priceOperator}${priceValue}`);
+      }
+
+      params.set("page", String(page));
+      params.set("limit", String(limit));
+
+      const res = await axios.get(`/products/search?${params.toString()}`);
+
+      set({
+        products: res.data.products,
+        searchMeta: {
+          total: res.data.total,
+          page: res.data.page,
+          numPages: res.data.numPages,
+        },
+        loading: false,
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Search failed");
       set({ loading: false });
     }
   },
