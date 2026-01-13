@@ -157,6 +157,7 @@ const CreateProductForm = () => {
             className="sr-only"
             accept="image/*"
             onChange={handleImageChange}
+            required
           />
           <label
             htmlFor="image"

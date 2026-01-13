@@ -71,7 +71,11 @@ export const deleteProduct = async (req, res) => {
       }
     }
 
+    const refreshFeatured = product.isFeatured;
+
     await Product.findByIdAndDelete(req.params.id);
+
+    if (refreshFeatured) await updateFeaturedProductsCache();
 
     res.json({ message: "Product deleted successfully" });
   } catch (error) {
