@@ -1,23 +1,26 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
+import useFormInput from "../hooks/useFormInput";
 
 const SignUpPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const name = useFormInput("");
+  const email = useFormInput("");
+  const password = useFormInput("");
+  const confirmPassword = useFormInput("");
 
   const { signup, loading } = useUserStore();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    signup(formData);
+    signup({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      confirmPassword: confirmPassword.value,
+    });
   };
 
   return (
@@ -56,10 +59,7 @@ const SignUpPage = () => {
                   id="name"
                   type="text"
                   required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  {...name.bind}
                   className="block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-md shadow-sm
 									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="John Doe"
@@ -82,10 +82,7 @@ const SignUpPage = () => {
                   id="email"
                   type="email"
                   required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  {...email.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
 									rounded-md shadow-sm
 									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
@@ -110,10 +107,7 @@ const SignUpPage = () => {
                   id="password"
                   type="password"
                   required
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
+                  {...password.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
 									rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="••••••••"
@@ -136,13 +130,7 @@ const SignUpPage = () => {
                   id="confirmPassword"
                   type="password"
                   required
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
+                  {...confirmPassword.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border
 									 border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="••••••••"

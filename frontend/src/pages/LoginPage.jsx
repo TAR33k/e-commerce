@@ -1,19 +1,18 @@
-import { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { LogIn, Mail, Lock, ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import useFormInput from "../hooks/useFormInput";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const email = useFormInput("");
+  const password = useFormInput("");
   const { login, loading } = useUserStore();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(email, password);
+    login(email.value, password.value);
   };
 
   return (
@@ -52,8 +51,7 @@ const LoginPage = () => {
                   id="email"
                   type="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...email.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
 									rounded-md shadow-sm
 									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
@@ -78,8 +76,7 @@ const LoginPage = () => {
                   id="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...password.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
 									rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                   placeholder="••••••••"

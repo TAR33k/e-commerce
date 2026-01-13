@@ -1,11 +1,12 @@
 import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import AnalyticsTab from "../components/AnalyticsTab";
 import CreateProductForm from "../components/CreateProductForm";
 import ProductsList from "../components/ProductsList";
 import { useProductStore } from "../stores/useProductStore";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const tabs = [
   { id: "create", label: "Create Product", icon: PlusCircle },
@@ -14,7 +15,7 @@ const tabs = [
 ];
 
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useLocalStorage("activeAdminTab", "create");
   const { fetchAllProducts } = useProductStore();
 
   useEffect(() => {

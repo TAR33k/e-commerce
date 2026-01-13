@@ -1,8 +1,8 @@
-import { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { PlusCircle, Upload, Loader } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
+import useFormInput from "../hooks/useFormInput";
 
 const categories = [
   "jeans",
@@ -15,26 +15,30 @@ const categories = [
 ];
 
 const CreateProductForm = () => {
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "",
-    image: "",
-  });
+  const name = useFormInput("");
+  const description = useFormInput("");
+  const price = useFormInput("");
+  const category = useFormInput("");
+  const image = useFormInput("");
 
   const { createProduct, loading } = useProductStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createProduct(newProduct);
-    setNewProduct({
-      name: "",
-      description: "",
-      price: "",
-      category: "",
-      image: "",
+
+    await createProduct({
+      name: name.value,
+      description: description.value,
+      price: price.value,
+      category: category.value,
+      image: image.value,
     });
+
+    name.reset();
+    description.reset();
+    price.reset();
+    category.reset();
+    image.reset();
   };
 
   const handleImageChange = (e) => {
@@ -44,7 +48,7 @@ const CreateProductForm = () => {
       const reader = new FileReader();
 
       reader.onload = () => {
-        setNewProduct({ ...newProduct, image: reader.result });
+        image.setValue(reader.result);
       };
 
       reader.readAsDataURL(file);
@@ -74,10 +78,7 @@ const CreateProductForm = () => {
             type="text"
             id="name"
             name="name"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
+            {...name.bind}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2
 						 px-3 text-white focus:outline-none focus:ring-2
 						focus:ring-emerald-500 focus:border-emerald-500"
@@ -95,10 +96,7 @@ const CreateProductForm = () => {
           <textarea
             id="description"
             name="description"
-            value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
+            {...description.bind}
             rows="3"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm
 						 py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 
@@ -118,10 +116,7 @@ const CreateProductForm = () => {
             type="number"
             id="price"
             name="price"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
+            {...price.bind}
             step="0.01"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
 						py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
@@ -140,10 +135,7 @@ const CreateProductForm = () => {
           <select
             id="category"
             name="category"
-            value={newProduct.category}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, category: e.target.value })
-            }
+            {...category.bind}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md
 						 shadow-sm py-2 px-3 text-white focus:outline-none 
 						 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -173,7 +165,7 @@ const CreateProductForm = () => {
             <Upload className="h-5 w-5 inline-block mr-2" />
             Upload Image
           </label>
-          {newProduct.image && (
+          {image.value && (
             <span className="ml-3 text-sm text-gray-400">Image uploaded</span>
           )}
         </div>
