@@ -1,6 +1,7 @@
 import Product from "../models/product.model.js";
 import { redis } from "../lib/redis.js";
 import cloudinary from "../lib/cloudinary.js";
+import { isObjectIdOrHexString } from "mongoose";
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -8,6 +9,22 @@ export const getAllProducts = async (req, res) => {
     res.json({ products });
   } catch (error) {
     console.log("Error in getAllProducts controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id))
+      return res.status(400).json({ message: "Product not found" });
+
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    res.json(product);
+  } catch (error) {
+    console.log("Error in getProductById controller", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -2,10 +2,12 @@ import toast from "react-hot-toast";
 import { ShoppingCart } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const { user } = useUserStore();
   const { addToCart } = useCartStore();
+  const navigate = useNavigate();
 
   const handleAddToCart = () => {
     if (!user) {
@@ -17,7 +19,10 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="flex w-full relative flex-col overflow-hidden rounded-lg border border-gray-700 shadow-lg">
-      <div className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl">
+      <div
+        onClick={() => navigate(`/product/${product._id}`)}
+        className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl cursor-pointer"
+      >
         <img
           className="object-cover w-full"
           src={product.image}
@@ -27,7 +32,10 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="mt-4 px-5 pb-5">
-        <h5 className="text-xl font-semibold tracking-tight text-white">
+        <h5
+          onClick={() => navigate(`/product/${product._id}`)}
+          className="text-xl font-semibold tracking-tight text-white cursor-pointer"
+        >
           {product.name}
         </h5>
         <div className="mt-2 mb-5 flex items-center justify-between">

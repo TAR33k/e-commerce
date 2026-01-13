@@ -6,6 +6,7 @@ export const useProductStore = create((set) => ({
   products: [],
   loading: false,
   searchMeta: { total: 0, page: 1, numPages: 1 },
+  product: null,
 
   setProducts: (products) => set({ products }),
 
@@ -127,6 +128,17 @@ export const useProductStore = create((set) => ({
     } catch (error) {
       toast.error(error.response?.data?.message || "Search failed");
       set({ loading: false });
+    }
+  },
+
+  getProductById: async (productId) => {
+    set({ loading: true, product: null });
+    try {
+      const res = await axios.get(`/products/product/${productId}`);
+      set({ product: res.data, loading: false });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch product");
+      set({ product: null, loading: false });
     }
   },
 }));

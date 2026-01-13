@@ -14,6 +14,7 @@ import { useCartStore } from "./stores/useCartStore";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 import SearchPage from "./pages/SearchPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 const App = () => {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -46,6 +47,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route
             path="/signup"
             element={!user ? <SignUpPage /> : <Navigate to="/" />}

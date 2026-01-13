@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCartStore } from "../stores/useCartStore";
+import { useNavigate } from "react-router-dom";
 
 const FeaturedProducts = ({ featuredProducts }) => {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(4);
 
@@ -59,7 +61,10 @@ const FeaturedProducts = ({ featuredProducts }) => {
                   className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-shrink-0 px-2"
                 >
                   <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden h-full transition-all duration-300 hover:shadow-xl border border-emerald-500/30">
-                    <div className="overflow-hidden">
+                    <div
+                      onClick={() => navigate(`/product/${product._id}`)}
+                      className="overflow-hidden cursor-pointer"
+                    >
                       <img
                         src={product.image}
                         alt={product.name}
@@ -67,7 +72,10 @@ const FeaturedProducts = ({ featuredProducts }) => {
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold mb-2 text-white">
+                      <h3
+                        onClick={() => navigate(`/product/${product._id}`)}
+                        className="text-lg font-semibold mb-2 text-white cursor-pointer"
+                      >
                         {product.name}
                       </h3>
                       <p className="text-emerald-300 font-medium mb-4">
