@@ -109,6 +109,45 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
+  requestPasswordReset: async (email) => {
+    set({ loading: true });
+    try {
+      const res = await axios.post("/auth/forgot-password", { email });
+      toast.success(res.data?.message || "Password reset email has been sent", {
+        duration: 5000,
+      });
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to send reset email",
+        {
+          duration: 5000,
+        },
+      );
+      set({ loading: false });
+      return false;
+    }
+  },
+
+  resetPassword: async (token, newPassword) => {
+    set({ loading: true });
+    try {
+      const res = await axios.post(`/auth/reset-password/${token}`, {
+        newPassword,
+      });
+      toast.success(res.data?.message || "Password reset successfully");
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password", {
+        duration: 5000,
+      });
+      set({ loading: false });
+      return false;
+    }
+  },
+
   logout: async () => {
     try {
       await axios.post("/auth/logout");
