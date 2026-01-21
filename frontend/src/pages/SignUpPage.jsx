@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
@@ -12,15 +12,17 @@ const SignUpPage = () => {
   const confirmPassword = useFormInput("");
 
   const { signup, loading } = useUserStore();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    signup({
+    const ok = await signup({
       name: name.value,
       email: email.value,
       password: password.value,
       confirmPassword: confirmPassword.value,
     });
+    if (ok) navigate("/login");
   };
 
   return (

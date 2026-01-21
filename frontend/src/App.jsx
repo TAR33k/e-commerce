@@ -15,6 +15,8 @@ import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 import SearchPage from "./pages/SearchPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ResendVerificationPage from "./pages/ResendVerificationPage";
 
 const App = () => {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -55,6 +57,14 @@ const App = () => {
           <Route
             path="/login"
             element={!user ? <LoginPage /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/verify-email/:token"
+            element={!user ? <VerifyEmailPage /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/resend-verification"
+            element={!user ? <ResendVerificationPage /> : <Navigate to="/" />}
           />
           <Route
             path="/secret-dashboard"

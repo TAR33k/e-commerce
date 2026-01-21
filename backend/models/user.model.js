@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,6 +37,22 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "admin"],
       default: "customer",
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    forgotPasswordToken: {
+      type: String,
+    },
+    forgotPasswordExpiry: {
+      type: Date,
+    },
+    emailVerificationToken: {
+      type: String,
+    },
+    emailVerificationExpiry: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -51,6 +68,18 @@ userSchema.pre("save", async function () {
 
 userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateTemporaryToken = function () {
+  const unhashedToken = crypto.randomBytes(20).toString("hex");
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(unhashedToken)
+    .digest("hex");
+
+  const tokenExpiry = Date.now() + 20 * 60 * 1000; // 20 minutes
+  return { unhashedToken, hashedToken, tokenExpiry };
 };
 
 const User = mongoose.model("User", userSchema);

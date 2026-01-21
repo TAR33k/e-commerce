@@ -1,33 +1,27 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { Mail, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogIn, Mail, Lock, ArrowRight, Loader } from "lucide-react";
-import { useUserStore } from "../stores/useUserStore";
 import useFormInput from "../hooks/useFormInput";
-import { useEffect } from "react";
+import { useUserStore } from "../stores/useUserStore";
 
-const LoginPage = () => {
-  const email = useFormInput("");
-  const password = useFormInput("");
+const ResendVerificationPage = () => {
   const {
-    login,
+    pendingEmail,
+    resendEmailVerification,
     loading,
-    needsEmailVerification,
-    consumeEmailVerificationRedirect,
+    clearEmailVerificationState,
   } = useUserStore();
 
+  const email = useFormInput(pendingEmail || "");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (needsEmailVerification) {
-      consumeEmailVerificationRedirect();
-      navigate("/resend-verification");
-    }
-  }, [needsEmailVerification, consumeEmailVerificationRedirect, navigate]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email.value, password.value);
+    const ok = await resendEmailVerification(email.value);
+    if (ok) {
+      navigate("/login");
+    }
   };
 
   return (
@@ -39,7 +33,7 @@ const LoginPage = () => {
         transition={{ duration: 0.8 }}
       >
         <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
-          Login to your account
+          Resend verification email
         </h2>
       </motion.div>
 
@@ -50,6 +44,14 @@ const LoginPage = () => {
         transition={{ duration: 0.8, delay: 0.2 }}
       >
         <div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <p className="text-sm text-gray-300 mb-6">
+            We sent you a verification email.
+            <br />
+            <br />
+            If you did not receive it or it expired, enter your email and we'll
+            send you a new verification link.
+          </p>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -68,33 +70,10 @@ const LoginPage = () => {
                   required
                   {...email.bind}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
-									rounded-md shadow-sm
-									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
-									 focus:border-emerald-500 sm:text-sm"
+								rounded-md shadow-sm
+								 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
+								 focus:border-emerald-500 sm:text-sm"
                   placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-300"
-              >
-                Password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  {...password.bind}
-                  className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
-									rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -113,29 +92,27 @@ const LoginPage = () => {
                     className="mr-2 h-5 w-5 animate-spin"
                     aria-hidden="true"
                   />
-                  Loading...
+                  Sending...
                 </>
               ) : (
-                <>
-                  <LogIn className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Login
-                </>
+                "Resend verification email"
               )}
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
-            Not a member?{" "}
+          <div className="mt-6 text-center text-sm text-gray-400">
             <Link
-              to="/signup"
+              to="/login"
+              onClick={clearEmailVerificationState}
               className="font-medium text-emerald-400 hover:text-emerald-300"
             >
-              Sign up now <ArrowRight className="inline h-4 w-4" />
+              Back to login
             </Link>
-          </p>
+          </div>
         </div>
       </motion.div>
     </div>
   );
 };
-export default LoginPage;
+
+export default ResendVerificationPage;

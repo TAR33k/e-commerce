@@ -6,21 +6,35 @@ export const useUserStore = create((set, get) => ({
   user: null,
   loading: false,
   checkingAuth: true,
+  needsEmailVerification: false,
+  pendingEmail: "",
 
   signup: async ({ name, email, password, confirmPassword }) => {
     set({ loading: true });
 
     if (password !== confirmPassword) {
       set({ loading: false });
-      return toast.error("Passwords do not match");
+      toast.error("Passwords do not match");
+      return false;
     }
 
     try {
       const res = await axios.post("/auth/signup", { name, email, password });
-      set({ user: res.data, loading: false });
+      set({
+        user: null,
+        loading: false,
+        needsEmailVerification: true,
+        pendingEmail: res.data.email,
+      });
+      toast.success(
+        "Account created. Please verify your email address before logging in",
+        { duration: 5000 },
+      );
+      return true;
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
+      return false;
     }
   },
 
@@ -30,10 +44,68 @@ export const useUserStore = create((set, get) => ({
     try {
       const res = await axios.post("/auth/login", { email, password });
 
-      set({ user: res.data, loading: false });
+      set({
+        user: res.data,
+        loading: false,
+        needsEmailVerification: false,
+        pendingEmail: "",
+      });
+      return true;
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      const message = error.response?.data?.message || "An error occurred";
+      if (error.response?.status === 403) {
+        set({ needsEmailVerification: true, pendingEmail: email });
+      }
+      toast.error(message);
+      return false;
+    }
+  },
+
+  consumeEmailVerificationRedirect: () => {
+    set({ needsEmailVerification: false });
+  },
+
+  clearEmailVerificationState: () => {
+    set({ needsEmailVerification: false, pendingEmail: "" });
+  },
+
+  verifyEmail: async (token) => {
+    set({ loading: true });
+    try {
+      const res = await axios.get(`/auth/verify-email/${token}`);
+      toast.success(res.data?.message || "Email verified");
+      set({ loading: false, needsEmailVerification: false });
+      return true;
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Email verification failed",
+        { duration: 5000 },
+      );
+      set({ loading: false });
+      return false;
+    }
+  },
+
+  resendEmailVerification: async (email) => {
+    set({ loading: true });
+    try {
+      const res = await axios.post("/auth/resend-email-verification", {
+        email,
+      });
+      toast.success(res.data?.message || "Verification email sent");
+      set({
+        loading: false,
+        needsEmailVerification: true,
+        pendingEmail: email,
+      });
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to resend email", {
+        duration: 5000,
+      });
+      set({ loading: false });
+      return false;
     }
   },
 
@@ -43,7 +115,7 @@ export const useUserStore = create((set, get) => ({
       set({ user: null });
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "An error occurred during logout"
+        error.response?.data?.message || "An error occurred during logout",
       );
     }
   },
@@ -99,5 +171,5 @@ axios.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
