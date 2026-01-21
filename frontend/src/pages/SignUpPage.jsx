@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import useFormInput from "../hooks/useFormInput";
 
@@ -11,11 +12,51 @@ const SignUpPage = () => {
   const password = useFormInput("");
   const confirmPassword = useFormInput("");
 
+  const passwordStrength = useMemo(() => {
+    const value = password.value || "";
+    const checks = {
+      minLength: value.length >= 6,
+      hasLower: /[a-z]/.test(value),
+      hasUpper: /[A-Z]/.test(value),
+      hasNumber: /\d/.test(value),
+      hasSymbol: /[^A-Za-z0-9]/.test(value),
+    };
+
+    const score = Object.values(checks).filter(Boolean).length;
+    const label =
+      score <= 1
+        ? "Very weak"
+        : score === 2
+          ? "Weak"
+          : score === 3
+            ? "Fair"
+            : score === 4
+              ? "Good"
+              : "Strong";
+
+    const colorClass =
+      score <= 1
+        ? "bg-red-500"
+        : score === 2
+          ? "bg-orange-500"
+          : score === 3
+            ? "bg-yellow-500"
+            : score === 4
+              ? "bg-emerald-500"
+              : "bg-emerald-400";
+
+    const meetsMinimum = score >= 4;
+
+    return { score, label, colorClass, meetsMinimum };
+  }, [password.value]);
+
   const { signup, loading } = useUserStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!passwordStrength.meetsMinimum) return;
+
     const ok = await signup({
       name: name.value,
       email: email.value,
@@ -115,6 +156,27 @@ const SignUpPage = () => {
                   placeholder="••••••••"
                 />
               </div>
+
+              {password.value && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">
+                      Password strength
+                    </span>
+                    <span className="text-xs text-gray-300">
+                      {password.value ? passwordStrength.label : ""}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded bg-gray-700">
+                    <div
+                      className={`h-2 rounded ${passwordStrength.colorClass}`}
+                      style={{
+                        width: `${(passwordStrength.score / 5) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -146,7 +208,7 @@ const SignUpPage = () => {
 							rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600
 							 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2
 							  focus:ring-emerald-500 transition duration-150 ease-in-out disabled:opacity-50"
-              disabled={loading}
+              disabled={loading || !passwordStrength.meetsMinimum}
             >
               {loading ? (
                 <>

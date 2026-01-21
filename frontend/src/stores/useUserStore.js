@@ -12,6 +12,22 @@ export const useUserStore = create((set, get) => ({
   signup: async ({ name, email, password, confirmPassword }) => {
     set({ loading: true });
 
+    const strengthScore = [
+      (password || "").length >= 6,
+      /[a-z]/.test(password || ""),
+      /[A-Z]/.test(password || ""),
+      /\d/.test(password || ""),
+      /[^A-Za-z0-9]/.test(password || ""),
+    ].filter(Boolean).length;
+
+    if (strengthScore < 4) {
+      set({ loading: false });
+      toast.error(
+        "Password is too weak. Use at least 6 characters with uppercase, lowercase, a number, and a symbol",
+      );
+      return false;
+    }
+
     if (password !== confirmPassword) {
       set({ loading: false });
       toast.error("Passwords do not match");
