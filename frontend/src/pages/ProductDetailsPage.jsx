@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { ShoppingCart } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCartStore } from "../stores/useCartStore";
 import { useUserStore } from "../stores/useUserStore";
 import toast from "react-hot-toast";
@@ -12,7 +12,7 @@ const ProductDetailsPage = () => {
   const { id } = useParams();
   const { getProductById, product, loading } = useProductStore();
   const { user } = useUserStore();
-  const { addToCart } = useCartStore();
+  const { cart, addToCart, updateQuantity } = useCartStore();
 
   useEffect(() => {
     getProductById(id);
@@ -42,13 +42,37 @@ const ProductDetailsPage = () => {
     );
   }
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!user) {
-      toast.error("Please login to add products to cart", { id: "login" });
+      toast.error("Please login to add products to cart", {
+        id: "login",
+      });
       return;
     }
     addToCart(product);
   };
+
+  const handleDecreaseQuantity = () => {
+    if (!user) {
+      toast.error("Please login to update cart", {
+        id: "login",
+      });
+      return;
+    }
+    updateQuantity(product._id, cartItem.quantity - 1);
+  };
+
+  const handleIncreaseQuantity = () => {
+    if (!user) {
+      toast.error("Please login to update cart", {
+        id: "login",
+      });
+      return;
+    }
+    updateQuantity(product._id, cartItem.quantity + 1);
+  };
+
+  const cartItem = cart?.find((item) => item._id === product?._id) || null;
 
   return (
     <div className="min-h-screen">
@@ -85,13 +109,43 @@ const ProductDetailsPage = () => {
             )}
 
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-              <button
-                className="flex items-center justify-center rounded-lg bg-emerald-600 px-6 py-3 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300"
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart size={20} className="mr-2" />
-                Add to cart
-              </button>
+              {cartItem ? (
+                <div>
+                  <p>In cart:</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      type="button"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-600 bg-gray-700 hover:bg-gray-600"
+                      onClick={handleDecreaseQuantity}
+                      disabled={cartItem.quantity < 1}
+                      title="Decrease quantity"
+                    >
+                      <Minus className="text-gray-200" size={18} />
+                    </button>
+
+                    <div className="h-10 min-w-14 rounded-md bg-gray-700 border border-gray-600 px-3 flex items-center justify-center text-white">
+                      {cartItem.quantity}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-600 bg-gray-700 hover:bg-gray-600"
+                      onClick={handleIncreaseQuantity}
+                      title="Increase quantity"
+                    >
+                      <Plus className="text-gray-200" size={18} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="flex items-center justify-center rounded-lg bg-emerald-600 px-6 py-3 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart size={20} className="mr-2" />
+                  Add to cart
+                </button>
+              )}
             </div>
           </div>
         </div>

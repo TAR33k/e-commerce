@@ -1,8 +1,10 @@
 import { Minus, Plus, Trash } from "lucide-react";
 import { useCartStore } from "../stores/useCartStore";
+import { useNavigate } from "react-router-dom";
 
 const CartItem = ({ item }) => {
   const { removeFromCart, updateQuantity } = useCartStore();
+  const navigate = useNavigate();
 
   return (
     <div className="rounded-lg border p-4 shadow-sm border-gray-700 bg-gray-800 md:p-6">
@@ -41,7 +43,10 @@ const CartItem = ({ item }) => {
         </div>
 
         <div className="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
-          <p className="text-base font-medium text-white hover:text-emerald-400 hover:underline">
+          <p
+            onClick={() => navigate(`/product/${item._id}`)}
+            className="text-base font-medium text-white hover:text-emerald-400 cursor-pointer"
+          >
             {item.name}
           </p>
           <p className="text-sm text-gray-400">{item.description}</p>
