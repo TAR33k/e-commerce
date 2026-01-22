@@ -20,6 +20,7 @@ import ResendVerificationPage from "./pages/ResendVerificationPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import EditProductPage from "./pages/EditProductPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -76,6 +77,10 @@ const App = () => {
           <Route
             path="/reset-password/:token"
             element={!user ? <ResetPasswordPage /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/profile"
+            element={user ? <ProfilePage /> : <Navigate to="/login" />}
           />
           <Route
             path="/secret-dashboard"

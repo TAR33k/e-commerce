@@ -24,6 +24,7 @@ export const useUserStore = create((set, get) => ({
       set({ loading: false });
       toast.error(
         "Password is too weak. Use at least 6 characters with uppercase, lowercase, a number, and a symbol",
+        { duration: 5000 },
       );
       return false;
     }
@@ -159,6 +160,43 @@ export const useUserStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Failed to reset password", {
         duration: 5000,
       });
+      set({ loading: false });
+      return false;
+    }
+  },
+
+  changePassword: async (oldPassword, newPassword) => {
+    set({ loading: true });
+    try {
+      const strengthScore = [
+        (newPassword || "").length >= 6,
+        /[a-z]/.test(newPassword || ""),
+        /[A-Z]/.test(newPassword || ""),
+        /\d/.test(newPassword || ""),
+        /[^A-Za-z0-9]/.test(newPassword || ""),
+      ].filter(Boolean).length;
+
+      if (strengthScore < 4) {
+        set({ loading: false });
+        toast.error(
+          "Password is too weak. Use at least 6 characters with uppercase, lowercase, a number, and a symbol",
+          { duration: 5000 },
+        );
+        return false;
+      }
+
+      const res = await axios.post("/auth/change-password", {
+        oldPassword,
+        newPassword,
+      });
+      toast.success(res.data?.message || "Password changed successfully");
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to change password",
+        { duration: 5000 },
+      );
       set({ loading: false });
       return false;
     }

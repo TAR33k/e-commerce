@@ -126,6 +126,7 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
+        createdAt: user.createdAt,
       });
     } else {
       res.status(400).json({ message: "Invalid email or password" });
@@ -286,12 +287,10 @@ export const forgotPasswordRequest = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user)
-      return res
-        .status(200)
-        .json({
-          message:
-            "If a user exists with this email, password reset email has been sent",
-        });
+      return res.status(200).json({
+        message:
+          "If a user exists with this email, password reset email has been sent",
+      });
 
     const { unhashedToken, hashedToken, tokenExpiry } =
       user.generateTemporaryToken();
@@ -310,12 +309,10 @@ export const forgotPasswordRequest = async (req, res) => {
       ),
     });
 
-    res
-      .status(200)
-      .json({
-        message:
-          "If a user exists with this email, password reset email has been sent",
-      });
+    res.status(200).json({
+      message:
+        "If a user exists with this email, password reset email has been sent",
+    });
   } catch (error) {
     console.log("Error in forgotPasswordRequest controller", error.message);
     res.status(500).json({ message: "Internal server error" });

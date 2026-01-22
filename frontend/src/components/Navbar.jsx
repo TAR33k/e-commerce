@@ -5,6 +5,7 @@ import {
   LogIn,
   LogOut,
   Lock,
+  User,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
@@ -75,6 +76,7 @@ const Navbar = () => {
                 )}
               </Link>
             )}
+
             {isAdmin && (
               <Link
                 className="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded-md font-medium
@@ -83,6 +85,16 @@ const Navbar = () => {
               >
                 <Lock className="inline-block mr-1" size={18} />
                 <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )}
+
+            {user && (
+              <Link
+                to="/profile"
+                className="text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center"
+              >
+                <User className="inline-block mr-1" size={18} />
+                <span className="hidden sm:inline">Profile</span>
               </Link>
             )}
 
