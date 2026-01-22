@@ -55,7 +55,7 @@ export const searchProducts = async (req, res) => {
 
       let filters = numericFilters.replace(
         regEx,
-        (match) => `-${operatorMap[match]}-`
+        (match) => `-${operatorMap[match]}-`,
       );
 
       const options = ["price"];
@@ -139,6 +139,52 @@ export const createProduct = async (req, res) => {
     res.status(201).json(product);
   } catch (error) {
     console.log("Error in createProduct controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    const { name, description, price, image, category } = req.body;
+
+    product.name = name ?? product.name;
+    product.description = description ?? product.description;
+    product.price = price ?? product.price;
+    product.category = category ?? product.category;
+
+    if (typeof image === "string" && image.length > 0) {
+      const isBase64 = image.startsWith("data:");
+      if (isBase64) {
+        if (product.image) {
+          const publicId = product.image.split("/").pop().split(".")[0];
+          try {
+            await cloudinary.uploader.destroy(`products/${publicId}`);
+          } catch (error) {
+            console.log("Error deleting image from cloudinary", error.message);
+          }
+        }
+
+        const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+          folder: "products",
+        });
+        product.image = cloudinaryResponse?.secure_url
+          ? cloudinaryResponse.secure_url
+          : product.image;
+      } else {
+        product.image = image;
+      }
+    }
+
+    const updatedProduct = await product.save();
+    if (updatedProduct.isFeatured) await updateFeaturedProductsCache();
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.log("Error in updateProduct controller", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };

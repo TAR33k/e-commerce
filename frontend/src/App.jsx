@@ -19,6 +19,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ResendVerificationPage from "./pages/ResendVerificationPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import EditProductPage from "./pages/EditProductPage";
 
 const App = () => {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -80,6 +81,16 @@ const App = () => {
             path="/secret-dashboard"
             element={
               user?.role === "admin" ? <AdminPage /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/secret-dashboard/products/:id"
+            element={
+              user?.role === "admin" ? (
+                <EditProductPage />
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
           <Route path="/category/:category" element={<CategoryPage />} />

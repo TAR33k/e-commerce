@@ -18,9 +18,29 @@ export const useProductStore = create((set) => ({
         products: [...prevState.products, res.data],
         loading: false,
       }));
+      toast.success("Product created");
     } catch (error) {
       toast.error(error.response.data.message);
       set({ loading: false });
+    }
+  },
+
+  updateProduct: async (productId, productData) => {
+    set({ loading: true });
+    try {
+      const res = await axios.put(`/products/${productId}`, productData);
+      set((prevState) => ({
+        products: prevState.products.map((p) =>
+          p._id === productId ? res.data : p,
+        ),
+        loading: false,
+      }));
+      toast.success("Product updated");
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update product");
+      set({ loading: false });
+      return false;
     }
   },
 
@@ -41,7 +61,7 @@ export const useProductStore = create((set) => ({
       await axios.delete(`/products/${productId}`);
       set((prevState) => ({
         products: prevState.products.filter(
-          (product) => product._id !== productId
+          (product) => product._id !== productId,
         ),
         loading: false,
       }));
@@ -59,7 +79,7 @@ export const useProductStore = create((set) => ({
         products: prevState.products.map((product) =>
           product._id === productId
             ? { ...product, isFeatured: res.data.isFeatured }
-            : product
+            : product,
         ),
         loading: false,
       }));

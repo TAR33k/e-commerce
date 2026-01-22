@@ -1,14 +1,16 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { Trash, Star } from "lucide-react";
+import { Trash, Star, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
 
 const ProductsList = () => {
+  const navigate = useNavigate();
   const { products, deleteProduct, toggleFeaturedProduct } = useProductStore();
 
   const handleDeleteProduct = (product) => {
     const confirmed = window.confirm(
-      `Delete "${product.name}"? This action cannot be undone.`
+      `Delete "${product.name}"? This action cannot be undone.`,
     );
     if (!confirmed) return;
     deleteProduct(product._id);
@@ -100,6 +102,15 @@ const ProductsList = () => {
                 </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button
+                  onClick={() =>
+                    navigate(`/secret-dashboard/products/${product._id}`)
+                  }
+                  className="text-emerald-400 hover:text-emerald-300 mr-3"
+                  title="Edit"
+                >
+                  <Pencil className="h-5 w-5" />
+                </button>
                 <button
                   onClick={() => handleDeleteProduct(product)}
                   className="text-red-400 hover:text-red-300"
